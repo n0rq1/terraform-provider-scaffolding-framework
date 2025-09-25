@@ -147,7 +147,6 @@ func (r *devopsResource) Read(ctx context.Context, req resource.ReadRequest, res
     }
 }
 
-
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *devopsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
     var plan devopsResourceModel

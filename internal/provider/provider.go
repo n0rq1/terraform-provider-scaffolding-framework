@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"terraform-provider-devops/internal/provider/client"
+	"terraform-provider-devops/internal/provider/devops"
 	"terraform-provider-devops/internal/provider/devs"
 	"terraform-provider-devops/internal/provider/engineers"
 	"terraform-provider-devops/internal/provider/ops"
@@ -88,7 +89,7 @@ func (p *DOBProvider) Resources(_ context.Context) []func() resource.Resource {
         engineers.NewEngineerResource,
         devs.NewDevResource,
 		ops.NewOpsResource,
-		//devops.NewDevOpsResource,
+		devops.NewDevOpsResource,
     }
 }
 
@@ -97,6 +98,7 @@ func (p *DOBProvider) DataSources(ctx context.Context) []func() datasource.DataS
         engineers.NewEngineersDataSource,
         devs.NewDevDataSource,
 		ops.NewOpsDataSource,
+		devops.NewDevopsDataSource,
     }
 }
 

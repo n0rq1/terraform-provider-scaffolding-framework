@@ -52,8 +52,13 @@ resource "dob_ops" "example" {
     ]
 }
 
-data "dob_dev" "example" {}
-
-output "dev" {
-    value = data.dob_dev.example
+resource "dob_devops" "example" {
+    devs = [
+        dob_dev.example.id
+    ]
+    ops = [
+        dob_ops.example.id
+    ]
 }
+
+

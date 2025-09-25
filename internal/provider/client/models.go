@@ -20,6 +20,6 @@ type Ops struct {
 
 type DevOps struct{
 	ID    string `json:"id"`
-	Devs []string `json:"devs"`
-	Ops []string `json:"ops"`
+	Dev []Dev `json:"dev"`
+	Ops []Ops `json:"ops"`
 }

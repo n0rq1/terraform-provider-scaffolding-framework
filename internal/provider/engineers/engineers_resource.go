@@ -26,6 +26,7 @@ func NewEngineerResource() resource.Resource {
 type EngineerResource struct {
 	client *client.Client
 }
+
 // Metadata returns the resource type name.
 func (r *EngineerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_engineer"
@@ -122,52 +123,52 @@ func (r *EngineerResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *EngineerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-    // Retrieve values from plan
-    var plan engineerResourceModel
-    diags := req.Plan.Get(ctx, &plan)
-    resp.Diagnostics.Append(diags...)
-    if resp.Diagnostics.HasError() {
-        return
-    }
+	// Retrieve values from plan
+	var plan engineerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-    // Generate API request body from plan
-    var reqEngineer = client.Engineer{
-        Name:  plan.Name.ValueString(),
-        Email: plan.Email.ValueString(),
-    }
-    reqEngineer.ID = plan.ID.ValueString()
+	// Generate API request body from plan
+	var reqEngineer = client.Engineer{
+		Name:  plan.Name.ValueString(),
+		Email: plan.Email.ValueString(),
+	}
+	reqEngineer.ID = plan.ID.ValueString()
 
-    // Update existing order
-    _, err := r.client.UpdateEngineer(plan.ID.ValueString(), reqEngineer)
-    if err != nil {
-        resp.Diagnostics.AddError(
-            "Error Updating Engineer",
-            "Could not update Engineer, unexpected error: "+err.Error(),
-        )
-        return
-    }
+	// Update existing order
+	_, err := r.client.UpdateEngineer(plan.ID.ValueString(), reqEngineer)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Updating Engineer",
+			"Could not update Engineer, unexpected error: "+err.Error(),
+		)
+		return
+	}
 
-    // Fetch updated items from GetOrder as UpdateOrder items are not
-    // populated.
-    engineer, err := r.client.GetEngineer(plan.ID.ValueString())
-    if err != nil {
-        resp.Diagnostics.AddError(
-            "Error Reading Engineer",
-            "Could not read Engineer ID "+plan.ID.ValueString()+": "+err.Error(),
-        )
-        return
-    }
+	// Fetch updated items from GetOrder as UpdateOrder items are not
+	// populated.
+	engineer, err := r.client.GetEngineer(plan.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading Engineer",
+			"Could not read Engineer ID "+plan.ID.ValueString()+": "+err.Error(),
+		)
+		return
+	}
 
-    // Update resource state with updated items and timestamp
-    plan.ID = types.StringValue(engineer.ID)
-    plan.Name = types.StringValue(engineer.Name)
-    plan.Email = types.StringValue(engineer.Email)
+	// Update resource state with updated items and timestamp
+	plan.ID = types.StringValue(engineer.ID)
+	plan.Name = types.StringValue(engineer.Name)
+	plan.Email = types.StringValue(engineer.Email)
 
-    diags = resp.State.Set(ctx, plan)
-    resp.Diagnostics.Append(diags...)
-    if resp.Diagnostics.HasError() {
-        return
-    }
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 // Delete deletes the resource and removes the Terraform state on success.

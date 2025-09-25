@@ -58,7 +58,7 @@ func (r *opsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() { return }
 
-	// Convert engineers list (types.List of string IDs) to []client.Engineer with only IDs populated
+	// Convert engineers list (types.List of string IDs) to []client.Engineer
 	var engineerIDs []string
 	diags = plan.Engineers.ElementsAs(ctx, &engineerIDs, false)
 	resp.Diagnostics.Append(diags...)
@@ -128,7 +128,6 @@ func (r *opsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
     for _, eng := range found.Engineers {
         engineerIDs = append(engineerIDs, eng.ID)
     }
-
     engList, diags2 := types.ListValueFrom(ctx, types.StringType, engineerIDs)
     resp.Diagnostics.Append(diags2...)
     if resp.Diagnostics.HasError() {
@@ -162,11 +161,10 @@ func (r *opsResource) Update(ctx context.Context, req resource.UpdateRequest, re
         return
     }
 
-    // Generate API request body from plan
+    // Generate API request body from plan using []client.Engineer
     var reqOps = client.Ops{
         Name: plan.Name.ValueString(),
     }
-    // Convert engineers list (types.List of string IDs) to []client.Engineer
     var engineerIDs []string
     diags = plan.Engineers.ElementsAs(ctx, &engineerIDs, false)
     resp.Diagnostics.Append(diags...)

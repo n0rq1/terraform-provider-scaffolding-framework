@@ -88,6 +88,7 @@ func (p *DOBProvider) Resources(_ context.Context) []func() resource.Resource {
         engineers.NewEngineerResource,
         devs.NewDevResource,
 		ops.NewOpsResource,
+		//devops.NewDevOpsResource,
     }
 }
 

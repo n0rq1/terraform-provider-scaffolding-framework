@@ -41,15 +41,9 @@ func (d *opsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, re
 					Attributes: map[string]schema.Attribute{
 						"id":   schema.StringAttribute{Computed: true},
 						"name": schema.StringAttribute{Computed: true},
-						"engineers": schema.ListNestedAttribute{
-							Computed: true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"id":    schema.StringAttribute{Computed: true},
-									"name":  schema.StringAttribute{Computed: true},
-									"email": schema.StringAttribute{Computed: true},
-								},
-							},
+						"engineers": schema.ListAttribute{
+							Computed:    true,
+							ElementType: types.StringType,
 						},
 					},
 				},
@@ -95,13 +89,13 @@ func (d *opsDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 			Name: types.StringValue(dv.Name),
 		}
 
-		for _, eng := range dv.Engineers {
-			dvm.Engineers = append(dvm.Engineers, opsDSEngineer{
-				ID:    types.StringValue(eng.ID),
-				Name:  types.StringValue(eng.Name),
-				Email: types.StringValue(eng.Email),
-			})
+		// dv.Engineers is []string of engineer IDs; map to Terraform list(string)
+		engList, diags := types.ListValueFrom(ctx, types.StringType, dv.Engineers)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
 		}
+		dvm.Engineers = engList
 
 		state.Ops = append(state.Ops, dvm)
 	}
@@ -120,18 +114,12 @@ type opsDataSourceModel struct {
 
 // opsModel maps Ops schema data.
 type opsDSModel struct {
-	ID        types.String       `tfsdk:"id"`
-	Name      types.String       `tfsdk:"name"`
-	Engineers []opsDSEngineer    `tfsdk:"engineers"`
+	ID        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	Engineers types.List   `tfsdk:"engineers"`
 }
 
-type opsDSEngineer struct {
-	ID    types.String `tfsdk:"id"`
-	Name  types.String `tfsdk:"name"`
-	Email types.String `tfsdk:"email"`
-}
-
-// OpsInfoModel maps Ops info data
-type OpsInfoModel struct {
+// opsInfoModel maps Ops info data
+type opsInfoModel struct {
 	ID types.String `tfsdk:"id"`
 }

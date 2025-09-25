@@ -41,15 +41,9 @@ func (d *devDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, re
 					Attributes: map[string]schema.Attribute{
 						"id":   schema.StringAttribute{Computed: true},
 						"name": schema.StringAttribute{Computed: true},
-						"engineers": schema.ListNestedAttribute{
-							Computed: true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"id":    schema.StringAttribute{Computed: true},
-									"name":  schema.StringAttribute{Computed: true},
-									"email": schema.StringAttribute{Computed: true},
-								},
-							},
+						"engineers": schema.ListAttribute{
+							Computed:    true,
+							ElementType: types.StringType,
 						},
 					},
 				},
@@ -95,13 +89,17 @@ func (d *devDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 			Name: types.StringValue(dv.Name),
 		}
 
+		// Convert engineers (objects) to a list of engineer IDs
+		engineerIDs := make([]string, 0, len(dv.Engineers))
 		for _, eng := range dv.Engineers {
-			dvm.Engineers = append(dvm.Engineers, devDSEngineer{
-				ID:    types.StringValue(eng.ID),
-				Name:  types.StringValue(eng.Name),
-				Email: types.StringValue(eng.Email),
-			})
+			engineerIDs = append(engineerIDs, eng.ID)
 		}
+		engList, diags := types.ListValueFrom(ctx, types.StringType, engineerIDs)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		dvm.Engineers = engList
 
 		state.Dev = append(state.Dev, dvm)
 	}
@@ -120,15 +118,9 @@ type DevDataSourceModel struct {
 
 // devModel maps Dev schema data.
 type devDSModel struct {
-	ID        types.String       `tfsdk:"id"`
-	Name      types.String       `tfsdk:"name"`
-	Engineers []devDSEngineer    `tfsdk:"engineers"`
-}
-
-type devDSEngineer struct {
-	ID    types.String `tfsdk:"id"`
-	Name  types.String `tfsdk:"name"`
-	Email types.String `tfsdk:"email"`
+	ID        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	Engineers types.List   `tfsdk:"engineers"`
 }
 
 // DevInfoModel maps Dev info data

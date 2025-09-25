@@ -51,3 +51,9 @@ resource "dob_ops" "example" {
       dob_engineer.Jack.id
     ]
 }
+
+data "dob_dev" "example" {}
+
+output "dev" {
+    value = data.dob_dev.example
+}

@@ -59,20 +59,20 @@ func (r *devResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if resp.Diagnostics.HasError() { return }
 
 	// Convert engineers list (types.List of string IDs) to []client.Engineer with only IDs populated
-	var engineerIDs []string
-	diags = plan.Engineers.ElementsAs(ctx, &engineerIDs, false)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() { return }
+    var engineerIDs []string
+    diags = plan.Engineers.ElementsAs(ctx, &engineerIDs, false)
+    resp.Diagnostics.Append(diags...)
+    if resp.Diagnostics.HasError() { return }
 
-	engs := make([]client.Engineer, 0, len(engineerIDs))
-	for _, id := range engineerIDs {
-		engs = append(engs, client.Engineer{ID: id})
-	}
+    engs := make([]client.Engineer, 0, len(engineerIDs))
+    for _, id := range engineerIDs {
+        engs = append(engs, client.Engineer{ID: id})
+    }
 
-	reqDev := client.Dev{
-		Name:      plan.Name.ValueString(),
-		Engineers: engs,
-	}
+    reqDev := client.Dev{
+        Name:      plan.Name.ValueString(),
+        Engineers: engs,
+    }
 
 	created, err := r.client.CreateDev(reqDev)
 	if err != nil {

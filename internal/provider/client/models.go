@@ -17,3 +17,9 @@ type Ops struct {
 	Name  string `json:"name"`
 	Engineers []Engineer `json:"engineers"`
 }
+
+type DevOps struct{
+	ID    string `json:"id"`
+	Devs []string `json:"devs"`
+	Ops []string `json:"ops"`
+}
